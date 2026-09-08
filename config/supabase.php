@@ -1,14 +1,15 @@
 <?php
-// Cargar variables de entorno desde Vercel o archivo de configuración
-$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://tu-id-de-proyecto.supabase.co';
-$supabaseApiKey = getenv('SUPABASE_ANON_KEY') ?: 'tu-clave-anonima-supabase';
+// Configuración de credenciales de Supabase
+$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://jahyuyjupzumdkdvcely.supabase.co';
+$supabaseApiKey = getenv('SUPABASE_ANON_KEY') ?: 'sb_publishable_kYEx4NdpkPuTDalujzz-LQ_AQlprrt6';
 
 /**
- * Función genérica para consultar Supabase REST API
+ * Función genérica para realizar peticiones cURL a la API REST de Supabase
  */
 function supabase_request($endpoint, $method = 'GET', $data = null) {
     global $supabaseUrl, $supabaseApiKey;
 
+    // Construcción automática de la URL completa hacia la API REST
     $url = rtrim($supabaseUrl, '/') . '/rest/v1/' . ltrim($endpoint, '/');
     $ch = curl_init($url);
 
