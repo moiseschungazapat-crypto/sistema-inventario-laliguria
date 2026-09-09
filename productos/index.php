@@ -1,7 +1,17 @@
 <?php
+ini_set('session.cookie_lifetime', 86400);
+ini_set('session.gc_maxlifetime', 86400);
+session_set_cookie_params([
+    'lifetime' => 86400,
+    'path' => '/',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 session_start();
+
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../index.php');
+    header('Location: index.php');
     exit;
 }
 require_once __DIR__ . '/../config/supabase.php';

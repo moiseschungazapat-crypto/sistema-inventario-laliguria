@@ -28,13 +28,13 @@ function obtenerArrayData($endpoint) {
 $dataProductos = obtenerArrayData('productos?select=id');
 $totalProductos = count($dataProductos);
 
-// Alertas de stock bajo comparando dinámicamente con min_stock
+// 1. Alertas de stock bajo comparando dinámicamente con la columna min_stock
 $productosBajos = obtenerArrayData('productos?stock=lte.min_stock&select=id,nombre,stock,min_stock,unidad');
 $totalAlertas = count($productosBajos);
 
 $movimientosRecientes = obtenerArrayData('movimientos?select=id,tipo,cantidad,fecha,producto:productos(nombre),usuario:usuarios(nombre),sede:sedes(nombre)&order=fecha.desc&limit=5');
 
-// Fecha con timestamp ISO 8601 compatible con Supabase
+// 2. Formato ISO para Supabase
 $hoy = date('Y-m-d\T00:00:00');
 
 $dataEntradas = obtenerArrayData("movimientos?tipo=eq.Entrada&fecha=gte.$hoy&select=cantidad");
@@ -52,6 +52,8 @@ foreach ($dataSalidas as $m) {
         $totalSalidas += $m['cantidad'];
     }
 }
+
+$nombreUsuario = $_SESSION['usuario']['nombre'] ?? 'Moises Chunga';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -63,231 +65,264 @@ foreach ($dataSalidas as $m) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { min-height: 100vh; background-color: #ffffff; border-right: 1px solid #e0e0e0; }
-        .sidebar-brand { padding: 20px 15px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-        .sidebar-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-        .sidebar-menu a { color: #555; text-decoration: none; display: flex; align-items: center; padding: 12px 20px; font-weight: 600; border-radius: 8px; margin: 4px 10px; font-size: 14px; }
-        .sidebar-menu a:hover { background-color: #f0f4f8; color: #0d233a; }
-        .sidebar-menu a.active { background-color: #0d233a; color: #ffffff; }
-        .stat-card { border: none; border-radius: 12px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card-custom { border: none; border-radius: 12px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .badge-critic { background-color: #dc3545; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
-        .chart-container { position: relative; height: 250px; width: 100%; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        .sidebar { min-height: 100vh; background-color: #ffffff; border-right: 1px solid #e2e8f0; }
+        .sidebar-brand { padding: 18px 20px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; gap: 12px; }
+        .sidebar-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid #d4a373; }
+        
+        .sidebar-menu { padding: 10px 0; }
+        .sidebar-menu a { color: #4a5568; text-decoration: none; display: flex; align-items: center; padding: 11px 22px; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .sidebar-menu a i { width: 22px; margin-right: 10px; font-size: 16px; text-align: center; }
+        .sidebar-menu a:hover { color: #1a202c; background-color: #f7fafc; }
+        .sidebar-menu a.active { background-color: #0b1e36; color: #ffffff; border-radius: 6px; margin: 0 12px; }
+        .sidebar-menu a.active i { color: #ffffff; }
+        .sidebar-menu a.logout { color: #e53e3e; margin-top: 40px; }
+
+        .top-navbar { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; background-color: transparent; }
+        .stat-card { border: none; border-radius: 12px; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .card-custom { border: none; border-radius: 12px; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .chart-box { position: relative; height: 230px; width: 100%; }
+        .badge-danger-soft { background-color: #fed7d7; color: #9b2c2c; font-weight: bold; border-radius: 12px; padding: 4px 10px; }
     </style>
 </head>
 <body>
 
 <div class="container-fluid">
     <div class="row">
-        <!-- Sidebar -->
+        <!-- Sidebar Navigation -->
         <div class="col-md-3 col-lg-2 sidebar p-0">
-            <div class="sidebar-brand d-flex align-items-center gap-2 px-3">
-                <img src="logo.jpg" alt="Logo" onerror="this.style.display='none'">
+            <div class="sidebar-brand">
+                <img src="https://ui-avatars.com/api/?name=La+Liguria&background=d4a373&color=fff" alt="Logo" class="sidebar-logo">
                 <span class="fw-bold text-dark fs-6">LA LIGURIA S.A.</span>
             </div>
-            <div class="sidebar-menu mt-3">
-                <a href="dashboard.php" class="active"><i class="fa-solid fa-chart-pie me-3"></i> Dashboard</a>
-                <a href="productos.php"><i class="fa-solid fa-boxes-stacked me-3"></i> Productos</a>
-                <a href="movimientos.php"><i class="fa-solid fa-right-left me-3"></i> Movimientos</a>
-                <a href="sedes.php"><i class="fa-solid fa-building me-3"></i> Sedes</a>
-                <a href="usuarios.php"><i class="fa-solid fa-users me-3"></i> Usuarios</a>
-                <a href="logout.php" class="text-danger mt-5"><i class="fa-solid fa-right-from-bracket me-3"></i> Cerrar Sesión</a>
+            <div class="sidebar-menu">
+                <a href="dashboard.php" class="active"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <a href="productos.php"><i class="fa-solid fa-box-archive"></i> Productos</a>
+                <a href="categorias.php"><i class="fa-solid fa-tag"></i> Categorías</a>
+                <a href="proveedores.php"><i class="fa-solid fa-truck"></i> Proveedores</a>
+                <a href="sedes.php"><i class="fa-solid fa-building"></i> Sedes</a>
+                <a href="inventario.php"><i class="fa-solid fa-warehouse"></i> Inventario</a>
+                <a href="movimientos.php"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimientos</a>
+                <a href="reportes.php"><i class="fa-solid fa-chart-line"></i> Reportes</a>
+                <a href="usuarios.php"><i class="fa-solid fa-users"></i> Usuarios</a>
+                <a href="logout.php" class="logout"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</a>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h3 class="fw-bold text-dark mb-1">Panel del Control</h3>
-                    <p class="text-muted small mb-0">Resumen general del inventario y movimientos recientes.</p>
+        <!-- Main Workspace -->
+        <div class="col-md-9 col-lg-10 p-0">
+            <!-- Header Bar -->
+            <div class="top-navbar">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-bars fs-5 text-secondary"></i>
+                    <h5 class="fw-bold m-0 text-dark">SISTEMA DE INVENTARIO</h5>
                 </div>
-                <div>
-                    <span class="badge bg-white text-dark border py-2 px-3 rounded-3 shadow-sm">
-                        <i class="fa-regular fa-calendar me-1"></i> <?php echo date('d/m/Y'); ?>
-                    </span>
-                </div>
-            </div>
-
-            <!-- Cards -->
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary">
-                                <i class="fa-solid fa-box fa-lg"></i>
-                            </div>
-                            <div>
-                                <h6 class="text-muted small mb-1">Total Productos</h6>
-                                <h4 class="fw-bold mb-0"><?php echo $totalProductos; ?></h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3 text-danger">
-                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                            </div>
-                            <div>
-                                <h6 class="text-muted small mb-1">Alertas Stock</h6>
-                                <h4 class="fw-bold mb-0"><?php echo $totalAlertas; ?></h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success">
-                                <i class="fa-solid fa-arrow-down fa-lg"></i>
-                            </div>
-                            <div>
-                                <h6 class="text-muted small mb-1">Entradas de Hoy</h6>
-                                <h4 class="fw-bold mb-0"><?php echo $totalEntradas; ?></h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card stat-card p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3 text-warning">
-                                <i class="fa-solid fa-arrow-up fa-lg"></i>
-                            </div>
-                            <div>
-                                <h6 class="text-muted small mb-1">Salidas de Hoy</h6>
-                                <h4 class="fw-bold mb-0"><?php echo $totalSalidas; ?></h4>
-                            </div>
-                        </div>
-                    </div>
+                <div class="dropdown">
+                    <button class="btn btn-white border-0 dropdown-toggle text-dark fw-medium" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user text-primary me-1"></i> <?php echo htmlspecialchars($nombreUsuario); ?>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-class dropdown-item text-danger" href="logout.php"><i class="fa-solid fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+                    </ul>
                 </div>
             </div>
 
-            <!-- Gráfico y Alertas -->
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-lg-7">
-                    <div class="card card-custom p-3 h-100">
-                        <h6 class="fw-bold text-dark mb-3">Flujo del Día (Entradas vs Salidas)</h6>
-                        <div class="chart-container">
-                            <canvas id="flujoChart"></canvas>
+            <div class="px-4 pb-4">
+                <h4 class="fw-bold text-dark mb-4">Dashboard de Inventario</h4>
+
+                <!-- Top Stats -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted fw-bold style-sub small">TOTAL PRODUCTOS</span>
+                                    <h2 class="fw-bold m-0 mt-1"><?php echo $totalProductos; ?></h2>
+                                </div>
+                                <div class="stat-icon bg-primary bg-opacity-10 text-primary fs-5">
+                                    <i class="fa-solid fa-box"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted fw-bold style-sub small">STOCK BAJO</span>
+                                    <h2 class="fw-bold text-danger m-0 mt-1"><?php echo $totalAlertas; ?></h2>
+                                </div>
+                                <div class="stat-icon bg-danger bg-opacity-10 text-danger fs-5">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted fw-bold style-sub small">ENTRADAS (HOY)</span>
+                                    <h2 class="fw-bold text-success m-0 mt-1"><?php echo $totalEntradas; ?> <span class="fs-6 text-muted fw-normal">kg</span></h2>
+                                </div>
+                                <div class="stat-icon bg-success bg-opacity-10 text-success fs-5">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card stat-card p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted fw-bold style-sub small">SALIDAS (HOY)</span>
+                                    <h2 class="fw-bold text-warning m-0 mt-1"><?php echo $totalSalidas; ?> <span class="fs-6 text-muted fw-normal">kg</span></h2>
+                                </div>
+                                <div class="stat-icon bg-warning bg-opacity-10 text-warning fs-5">
+                                    <i class="fa-solid fa-arrow-up"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-5">
-                    <div class="card card-custom p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold text-dark mb-0">Stock Bajo / Crítico</h6>
-                            <a href="productos.php" class="text-decoration-none small">Ver todo</a>
+                <!-- Charts Section -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-lg-6">
+                        <div class="card card-custom p-3 h-100">
+                            <h6 class="fw-bold text-dark mb-3">ENTRADAS VS SALIDAS</h6>
+                            <div class="chart-box">
+                                <canvas id="chartEntradasSalidas"></canvas>
+                            </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light fs-7">
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th class="text-center">Stock</th>
-                                        <th class="text-center">Mínimo</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (empty($productosBajos)): ?>
-                                        <tr>
-                                            <td colspan="3" class="text-center text-muted small py-3">Sin alertas de stock.</td>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="card card-custom p-3 h-100">
+                            <h6 class="fw-bold text-dark mb-3">EVOLUCIÓN DEL CONSUMO</h6>
+                            <div class="chart-box">
+                                <canvas id="chartConsumo"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Grid -->
+                <div class="row g-3">
+                    <div class="col-12 col-lg-4">
+                        <div class="card card-custom p-3 h-100">
+                            <h6 class="fw-bold text-dark mb-3">STOCK BAJO (ALERTAS)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-borderless align-middle mb-0 fs-7">
+                                    <thead>
+                                        <tr class="border-bottom text-muted">
+                                            <th>Producto</th>
+                                            <th class="text-center">Stock</th>
+                                            <th class="text-center">Mínimo</th>
                                         </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($productosBajos as $pb): ?>
-                                            <tr>
-                                                <td class="fw-medium small"><?php echo htmlspecialchars($pb['nombre'] ?? ''); ?></td>
-                                                <td class="text-center"><span class="badge badge-critic"><?php echo $pb['stock'] ?? 0; ?></span></td>
-                                                <td class="text-center text-muted small"><?php echo $pb['min_stock'] ?? 0; ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($productosBajos)): ?>
+                                            <tr><td colspan="3" class="text-center text-muted py-3">Sin alertas de stock</td></tr>
+                                        <?php else: ?>
+                                            <?php foreach ($productosBajos as $pb): ?>
+                                                <tr>
+                                                    <td class="fw-medium"><?php echo htmlspecialchars($pb['nombre'] ?? ''); ?></td>
+                                                    <td class="text-center"><span class="badge-danger-soft"><?php echo $pb['stock'] ?? 0; ?></span></td>
+                                                    <td class="text-center text-muted"><?php echo $pb['min_stock'] ?? 0; ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="card card-custom p-3 h-100">
+                            <h6 class="fw-bold text-dark mb-3">MOVIMIENTOS RECIENTES</h6>
+                            <div class="table-responsive">
+                                <table class="table table-borderless align-middle mb-0 fs-7">
+                                    <tbody>
+                                        <?php if (empty($movimientosRecientes)): ?>
+                                            <tr><td class="text-center text-muted py-3">No hay registros recientes</td></tr>
+                                        <?php else: ?>
+                                            <?php foreach ($movimientosRecientes as $m): ?>
+                                                <tr class="border-bottom">
+                                                    <td>
+                                                        <div class="fw-medium"><?php echo htmlspecialchars($m['producto']['nombre'] ?? 'Producto'); ?></div>
+                                                        <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($m['fecha'] ?? 'now')); ?></small>
+                                                    </td>
+                                                    <td class="text-end fw-bold <?php echo ($m['tipo'] ?? '') === 'Entrada' ? 'text-success' : 'text-warning'; ?>">
+                                                        <?php echo (($m['tipo'] ?? '') === 'Entrada' ? '+' : '-') . ($m['cantidad'] ?? 0); ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="card card-custom p-3 h-100">
+                            <h6 class="fw-bold text-dark mb-3">CATEGORÍAS PRINCIPALES</h6>
+                            <div class="d-flex align-items-center justify-content-center text-muted h-75">
+                                <span class="small">Sin datos de categorías</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tabla Movimientos -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card card-custom p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold text-dark mb-0">Últimos Movimientos Registrados</h6>
-                            <a href="movimientos.php" class="text-decoration-none small">Ver historial completo</a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 fs-7">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Tipo</th>
-                                        <th>Producto</th>
-                                        <th class="text-center">Cantidad</th>
-                                        <th>Sede</th>
-                                        <th>Usuario</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (empty($movimientosRecientes)): ?>
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted small py-3">No hay movimientos recientes registrados.</td>
-                                        </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($movimientosRecientes as $mov): ?>
-                                            <tr>
-                                                <td class="small text-muted"><?php echo isset($mov['fecha']) ? date('d/m/Y H:i', strtotime($mov['fecha'])) : '-'; ?></td>
-                                                <td>
-                                                    <?php if (($mov['tipo'] ?? '') === 'Entrada'): ?>
-                                                        <span class="badge bg-success bg-opacity-10 text-success">Entrada</span>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-warning bg-opacity-10 text-warning">Salida</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td class="fw-medium"><?php echo htmlspecialchars($mov['producto']['nombre'] ?? 'Desconocido'); ?></td>
-                                                <td class="text-center fw-bold"><?php echo $mov['cantidad'] ?? 0; ?></td>
-                                                <td class="small"><?php echo htmlspecialchars($mov['sede']['nombre'] ?? 'N/A'); ?></td>
-                                                <td class="small text-muted"><?php echo htmlspecialchars($mov['usuario']['nombre'] ?? 'Sistema'); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
-
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const ctx = document.getElementById('flujoChart').getContext('2d');
-    new Chart(ctx, {
+    // Gráfico 1: Entradas vs Salidas por Día
+    const ctx1 = document.getElementById('chartEntradasSalidas').getContext('2d');
+    new Chart(ctx1, {
         type: 'bar',
         data: {
-            labels: ['Entradas de Hoy', 'Salidas de Hoy'],
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+            datasets: [
+                { label: 'Entradas', data: [0, 0, <?php echo $totalEntradas; ?>, 0, 0, 0, 0], backgroundColor: '#1e40af' },
+                { label: 'Salidas', data: [0, 0, <?php echo $totalSalidas; ?>, 0, 0, 0, 0], backgroundColor: '#d97706' }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, max: 10 } }
+        }
+    });
+
+    // Gráfico 2: Evolución del Consumo
+    const ctx2 = document.getElementById('chartConsumo').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
             datasets: [{
-                label: 'Cantidad',
-                data: [<?php echo $totalEntradas; ?>, <?php echo $totalSalidas; ?>],
-                backgroundColor: ['rgba(25, 135, 84, 0.8)', 'rgba(255, 193, 7, 0.8)'],
-                borderRadius: 4
+                label: 'Consumo',
+                data: [0, 0, 0, 0, 0, 0],
+                borderColor: '#1e40af',
+                tension: 0.1,
+                fill: false
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
+            scales: { y: { beginAtZero: true, max: 10 } }
         }
     });
 </script>
