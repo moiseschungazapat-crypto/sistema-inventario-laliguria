@@ -7,29 +7,40 @@ if (!isset($_SESSION['usuario'])) {
 
 require_once __DIR__ . '/config/supabase.php';
 
-// Consultas dinámicas a Supabase
-$resProductos = supabase_request('productos?select=id');
-$totalProductos = is_array($resProductos['data']) ? count($resProductos['data']) : 0;
+// Función auxiliar para obtener datos como arreglo seguro
+function obtenerArrayData($endpoint) {
+    $res = supabase_request($endpoint);
+    if (isset($res['data']) && is_array($res['data'])) {
+        return $res['data'];
+    }
+    return [];
+}
 
-$resAlertas = supabase_request('productos?stock=lte.10&select=id,nombre,stock,min_stock,unidad');
-$productosBajos = is_array($resAlertas['data']) ? $resAlertas['data'] : [];
+// Consultas seguras
+$dataProductos = obtenerArrayData('productos?select=id');
+$totalProductos = count($dataProductos);
+
+$productosBajos = obtenerArrayData('productos?stock=lte.10&select=id,nombre,stock,min_stock,unidad');
 $totalAlertas = count($productosBajos);
 
-$resMovs = supabase_request('movimientos?select=id,tipo,cantidad,fecha,producto:productos(nombre),usuario:usuarios(nombre),sede:sedes(nombre)&order=fecha.desc&limit=5');
-$movimientosRecientes = is_array($resMovs['data']) ? $resMovs['data'] : [];
+$movimientosRecientes = obtenerArrayData('movimientos?select=id,tipo,cantidad,fecha,producto:productos(nombre),usuario:usuarios(nombre),sede:sedes(nombre)&order=fecha.desc&limit=5');
 
 // Entradas y salidas del día
 $hoy = date('Y-m-d');
-$resEntradas = supabase_request("movimientos?tipo=eq.Entrada&fecha=gte.$hoy&select=cantidad");
+$dataEntradas = obtenerArrayData("movimientos?tipo=eq.Entrada&fecha=gte.$hoy&select=cantidad");
 $totalEntradas = 0;
-if (is_array($resEntradas['data'])) {
-    foreach ($resEntradas['data'] as $m) { $totalEntradas += $m['cantidad']; }
+foreach ($dataEntradas as $m) {
+    if (isset($m['cantidad']) && is_numeric($m['cantidad'])) {
+        $totalEntradas += $m['cantidad'];
+    }
 }
 
-$resSalidas = supabase_request("movimientos?tipo=eq.Salida&fecha=gte.$hoy&select=cantidad");
+$dataSalidas = obtenerArrayData("movimientos?tipo=eq.Salida&fecha=gte.$hoy&select=cantidad");
 $totalSalidas = 0;
-if (is_array($resSalidas['data'])) {
-    foreach ($resSalidas['data'] as $m) { $totalSalidas += $m['cantidad']; }
+foreach ($dataSalidas as $m) {
+    if (isset($m['cantidad']) && is_numeric($m['cantidad'])) {
+        $totalSalidas += $m['cantidad'];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -60,7 +71,7 @@ if (is_array($resSalidas['data'])) {
         <!-- Barra Lateral -->
         <div class="col-md-3 col-lg-2 sidebar p-0">
             <div class="sidebar-brand d-flex align-items-center justify-content-center gap-2">
-                <img src="assets/img/logo.png" alt="Logo" class="sidebar-logo">
+                <img src="assets/img/logo.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
                 <span class="fw-bold text-dark fs-6">LA LIGURIA S.A.</span>
             </div>
             <div class="sidebar-menu py-3">
@@ -85,7 +96,7 @@ if (is_array($resSalidas['data'])) {
                 <h4 class="fw-bold m-0"><i class="fa-solid fa-bars me-2"></i> SISTEMA DE INVENTARIO</h4>
                 <div class="dropdown">
                     <button class="btn btn-white border dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-circle-user text-primary me-2"></i> <?= htmlspecialchars($_SESSION['usuario']['nombre']) ?>
+                        <i class="fa-solid fa-circle-user text-primary me-2"></i> <?= htmlspecialchars($_SESSION['usuario']['nombre'] ?? 'Administrador') ?>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="logout.php">Cerrar Sesión</a></li>
@@ -167,7 +178,7 @@ if (is_array($resSalidas['data'])) {
                                     <?php else: ?>
                                         <?php foreach ($productosBajos as $p): ?>
                                             <tr>
-                                                <td><?= htmlspecialchars($p['nombre']) ?> <small class="text-muted">(<?= $p['stock'] ?>/Min: <?= $p['min_stock'] ?>)</small></td>
+                                                <td><?= htmlspecialchars($p['nombre'] ?? 'Sin nombre') ?> <small class="text-muted">(<?= $p['stock'] ?? 0 ?>/Min: <?= $p['min_stock'] ?? 0 ?>)</small></td>
                                                 <td class="text-end"><span class="badge-critic">Crítico</span></td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -192,10 +203,10 @@ if (is_array($resSalidas['data'])) {
                                     <?php else: ?>
                                         <?php foreach ($movimientosRecientes as $m): ?>
                                             <tr>
-                                                <td><small><?= date('H:i A', strtotime($m['fecha'])) ?></small></td>
+                                                <td><small><?= isset($m['fecha']) ? date('H:i A', strtotime($m['fecha'])) : '--:--' ?></small></td>
                                                 <td><?= htmlspecialchars($m['producto']['nombre'] ?? 'N/A') ?></td>
-                                                <td class="<?= $m['tipo'] === 'Entrada' ? 'text-success' : 'text-danger' ?> fw-bold">
-                                                    <?= $m['tipo'] === 'Entrada' ? '+' : '-' ?><?= $m['cantidad'] ?>
+                                                <td class="<?= (isset($m['tipo']) && $m['tipo'] === 'Entrada') ? 'text-success' : 'text-danger' ?> fw-bold">
+                                                    <?= (isset($m['tipo']) && $m['tipo'] === 'Entrada') ? '+' : '-' ?><?= $m['cantidad'] ?? 0 ?>
                                                 </td>
                                                 <td><small><?= htmlspecialchars($m['sede']['nombre'] ?? 'Central') ?></small></td>
                                             </tr>
@@ -224,7 +235,6 @@ if (is_array($resSalidas['data'])) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Renderizado de gráficos dinámicos
 new Chart(document.getElementById('chartBarras'), {
     type: 'bar',
     data: {
