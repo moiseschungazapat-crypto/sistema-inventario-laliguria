@@ -6,10 +6,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    // Verificación de credenciales por defecto para LA LIGURIA S.A.
-    if ($email === 'admin@laliguria.com' && $password === 'admin123') {
+    // Credenciales de acceso autorizadas
+    if ($email === 'moiseschungazapata@gmail.com' && $password === 'moises987654123') {
         $_SESSION['usuario'] = [
-            'nombre' => 'Administrador General',
+            'nombre' => 'Administrador',
             'email' => $email,
             'rol' => 'Administrador'
         ];
@@ -17,12 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Consulta en la tabla usuarios de Supabase
+    // Consulta de respaldo en Supabase
     $res = supabase_request("usuarios?email=eq." . urlencode($email));
 
     if (isset($res['code']) && $res['code'] === 200 && !empty($res['data'])) {
         $usuario = $res['data'][0];
-        // Verificación básica
         if ($usuario['password'] === $password || password_verify($password, $usuario['password'])) {
             $_SESSION['usuario'] = [
                 'id' => $usuario['id'],
@@ -35,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Si falla, redirige con alerta
     header('Location: index.php?error=1');
     exit;
 }
