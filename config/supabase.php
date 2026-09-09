@@ -3,14 +3,13 @@
 $supabaseUrl = getenv('SUPABASE_URL') ?: 'https://jahyuyjupzumdkdvcely.supabase.co';
 $supabaseApiKey = getenv('SUPABASE_ANON_KEY') ?: 'sb_publishable_kYEx4NdpkPuTDalujzz-LQ_AQlprrt6';
 
-/**
- * Función genérica para realizar peticiones cURL a la API REST de Supabase
- */
 function supabase_request($endpoint, $method = 'GET', $data = null) {
     global $supabaseUrl, $supabaseApiKey;
 
-    // Construcción automática de la URL completa hacia la API REST
-    $url = rtrim($supabaseUrl, '/') . '/rest/v1/' . ltrim($endpoint, '/');
+    // Limpieza estricta de la URL base
+    $baseUrl = preg_replace('/\/rest\/v1\/?$/', '', rtrim($supabaseUrl, '/'));
+    $url = $baseUrl . '/rest/v1/' . ltrim($endpoint, '/');
+    
     $ch = curl_init($url);
 
     $headers = [
