@@ -56,6 +56,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Por favor, ingrese su correo y contraseña.';
     }
 }
+
+// Búsqueda inteligente de la ruta del logo
+$logo_path = 'logo.png';
+$possible_paths = [
+    'logo.png',
+    'assets/logo.png',
+    'assets/img/logo.png',
+    'assets/Img/logo.png',
+    'assets/img/logo.PNG',
+    'assets/Img/logo.PNG'
+];
+
+foreach ($possible_paths as $path) {
+    if (file_exists(__DIR__ . '/' . $path)) {
+        $logo_path = $path;
+        break;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -171,10 +189,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="login-card">
     <div class="login-header">
         <div class="brand-logo-container">
-            <img src="assets/Img/logo.png" 
-                alt="LA LIGURIA S.A." 
-                class="brand-logo"
-                onerror="this.onerror=null; this.src='assets/img/logo.png';">
+            <img src="<?= htmlspecialchars($logo_path) ?>" 
+                 alt="LA LIGURIA S.A." 
+                 class="brand-logo"
+                 onerror="this.onerror=null; this.src='assets/logo.png'; this.onerror=function(){this.style.display='none'; document.getElementById('logo-icon-fallback').style.display='block';};">
+            <i id="logo-icon-fallback" class="fa-solid fa-store fs-1 text-warning" style="display: none;"></i>
         </div>
         <h4 class="fw-bold m-0" style="letter-spacing: 0.5px;">LA LIGURIA S.A.</h4>
         <p class="m-0 text-white-50 small mt-1">Gestión e Inventario Multi-Sede</p>
