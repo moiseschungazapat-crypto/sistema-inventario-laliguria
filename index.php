@@ -20,11 +20,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
 
     if (!empty($email) && !empty($password)) {
+        // Acceso demo por defecto
+        if ($email === 'moiseschungazapata@gmail.com' && $password === 'moises987654123') {
+            $_SESSION['usuario'] = [
+                'id' => 1,
+                'nombre' => 'Administrador',
+                'email' => $email,
+                'rol' => 'Administrador'
+            ];
+            header('Location: dashboard.php');
+            exit;
+        }
+
+        // Validación normal con Supabase
         $res = supabase_request("usuarios?email=eq." . urlencode($email) . "&select=*");
         
         if (isset($res['data']) && count($res['data']) > 0) {
             $user = $res['data'][0];
-            // Verificación de contraseña (soporta texto plano o password_verify)
             if ($password === $user['password'] || password_verify($password, $user['password'])) {
                 $_SESSION['usuario'] = [
                     'id' => $user['id'],
@@ -153,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="email" class="form-label fw-medium text-dark small">Correo Electrónico</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="usuario@laliguria.com" required>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="moiseschungazapata@gmail.com" required>
                 </div>
             </div>
 
