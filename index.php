@@ -171,7 +171,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="login-card">
     <div class="login-header">
         <div class="brand-logo-container">
-            <img src="assets/img/logo.png" alt="LA LIGURIA S.A." class="brand-logo">
+            <img src="assets/Img/logo.png" 
+                alt="LA LIGURIA S.A." 
+                class="brand-logo"
+                onerror="this.onerror=null; this.src='assets/img/logo.png';">
         </div>
         <h4 class="fw-bold m-0" style="letter-spacing: 0.5px;">LA LIGURIA S.A.</h4>
         <p class="m-0 text-white-50 small mt-1">Gestión e Inventario Multi-Sede</p>
