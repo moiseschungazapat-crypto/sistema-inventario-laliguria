@@ -188,11 +188,11 @@ foreach ($possible_paths as $path) {
 
 <div class="login-card">
     <div class="login-header">
-        <div class="brand-logo-container">
-            <img src="<?= htmlspecialchars($logo_path) ?>" 
-                 alt="LA LIGURIA S.A." 
-                 class="brand-logo"
-                 onerror="this.onerror=null; this.src='assets/logo.png'; this.onerror=function(){this.style.display='none'; document.getElementById('logo-icon-fallback').style.display='block';};">
+                <div class="brand-logo-container">
+            <img src="logo.png?v=<?php echo time(); ?>" 
+                alt="LA LIGURIA S.A." 
+                class="brand-logo"
+                onerror="this.onerror=null; this.src='assets/img/logo.png'; this.onerror=function(){this.style.display='none'; document.getElementById('logo-icon-fallback').style.display='block';};">
             <i id="logo-icon-fallback" class="fa-solid fa-store fs-1 text-warning" style="display: none;"></i>
         </div>
         <h4 class="fw-bold m-0" style="letter-spacing: 0.5px;">LA LIGURIA S.A.</h4>
