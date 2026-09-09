@@ -112,24 +112,26 @@ foreach ($possible_paths as $path) {
             border-bottom: 3px solid #d4a373;
         }
         .brand-logo-container {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 12px auto;
-            border-radius: 50%;
-            border: 3px solid #d4a373;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 5px;
-        }
+        width: 110px;
+        height: 110px;
+        margin: 0 auto 15px auto;
+        border-radius: 50%;
+        border: 3px solid #d4a373;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 0;
+    }
+
         .brand-logo {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center; 
+    }
         .login-body {
             padding: 28px 28px 20px 28px;
         }
