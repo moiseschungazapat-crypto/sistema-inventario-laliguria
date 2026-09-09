@@ -121,17 +121,17 @@ foreach ($dataSalidas as $m) {
                 <span class="fw-bold text-dark fs-6">LA LIGURIA S.A.</span>
             </div>
             <div class="sidebar-menu py-3">
-                <a href="dashboard.php" class="active"><i class="fa-solid fa-house me-3"></i> Dashboard</a>
-                <a href="#productos"><i class="fa-solid fa-box me-3"></i> Productos</a>
-                <a href="#categorias"><i class="fa-solid fa-tags me-3"></i> Categorías</a>
-                <a href="#proveedores"><i class="fa-solid fa-truck me-3"></i> Proveedores</a>
-                <a href="#sedes"><i class="fa-solid fa-building me-3"></i> Sedes</a>
-                <a href="#inventario"><i class="fa-solid fa-boxes-stacked me-3"></i> Inventario</a>
-                <a href="#movimientos"><i class="fa-solid fa-arrow-right-arrow-left me-3"></i> Movimientos</a>
-                <a href="#reportes"><i class="fa-solid fa-chart-pie me-3"></i> Reportes</a>
-                <a href="#usuarios"><i class="fa-solid fa-users me-3"></i> Usuarios</a>
-                <hr class="my-3">
-                <a href="logout.php" class="text-danger"><i class="fa-solid fa-power-off me-3"></i> Cerrar Sesión</a>
+            <a href="dashboard.php" class="active"><i class="fa-solid fa-house me-3"></i> Dashboard</a>
+            <a href="productos/index.php"><i class="fa-solid fa-box me-3"></i> Productos</a>
+            <a href="categorias/index.php"><i class="fa-solid fa-tags me-3"></i> Categorías</a>
+            <a href="proveedores/index.php"><i class="fa-solid fa-truck me-3"></i> Proveedores</a>
+            <a href="sedes/index.php"><i class="fa-solid fa-building me-3"></i> Sedes</a>
+            <a href="inventario/index.php"><i class="fa-solid fa-boxes-stacked me-3"></i> Inventario</a>
+            <a href="movimientos/index.php"><i class="fa-solid fa-arrow-right-arrow-left me-3"></i> Movimientos</a>
+            <a href="reportes/index.php"><i class="fa-solid fa-chart-pie me-3"></i> Reportes</a>
+            <a href="usuarios/index.php"><i class="fa-solid fa-users me-3"></i> Usuarios</a>
+            <hr class="my-3">
+            <a href="logout.php" class="text-danger"><i class="fa-solid fa-power-off me-3"></i> Cerrar Sesión</a>
             </div>
         </div>
 
