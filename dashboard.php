@@ -7,7 +7,6 @@ if (!isset($_SESSION['usuario'])) {
 
 require_once __DIR__ . '/config/supabase.php';
 
-// Función auxiliar para obtener datos como arreglo seguro
 function obtenerArrayData($endpoint) {
     $res = supabase_request($endpoint);
     if (isset($res['data']) && is_array($res['data'])) {
@@ -16,7 +15,6 @@ function obtenerArrayData($endpoint) {
     return [];
 }
 
-// Consultas seguras a Supabase
 $dataProductos = obtenerArrayData('productos?select=id');
 $totalProductos = count($dataProductos);
 
@@ -25,7 +23,6 @@ $totalAlertas = count($productosBajos);
 
 $movimientosRecientes = obtenerArrayData('movimientos?select=id,tipo,cantidad,fecha,producto:productos(nombre),usuario:usuarios(nombre),sede:sedes(nombre)&order=fecha.desc&limit=5');
 
-// Entradas y salidas del día
 $hoy = date('Y-m-d');
 $dataEntradas = obtenerArrayData("movimientos?tipo=eq.Entrada&fecha=gte.$hoy&select=cantidad");
 $totalEntradas = 0;
@@ -63,20 +60,51 @@ foreach ($dataSalidas as $m) {
         .card-custom { border: none; border-radius: 10px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .badge-critic { background-color: #d9534f; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
 
-        /* FIX DE ALTURA PARA CANVASES DE CHART.JS */
         .chart-container {
             position: relative;
-            height: 230px;
+            height: 220px;
             width: 100%;
+        }
+
+        /* Ajustes específicos para móviles */
+        @media (max-width: 767.98px) {
+            .main-content { padding: 15px !important; }
+            .chart-container { height: 180px; }
         }
     </style>
 </head>
 <body>
 
+<!-- Menú Desplegable Offcanvas para Móviles -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+    <div class="offcanvas-header border-bottom">
+        <div class="d-flex align-items-center gap-2">
+            <img src="assets/img/logo.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
+            <h6 class="offcanvas-title fw-bold text-dark m-0" id="mobileSidebarLabel">LA LIGURIA S.A.</h6>
+        </div>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <div class="sidebar-menu py-3">
+            <a href="dashboard.php" class="active"><i class="fa-solid fa-house me-3"></i> Dashboard</a>
+            <a href="#productos"><i class="fa-solid fa-box me-3"></i> Productos</a>
+            <a href="#categorias"><i class="fa-solid fa-tags me-3"></i> Categorías</a>
+            <a href="#proveedores"><i class="fa-solid fa-truck me-3"></i> Proveedores</a>
+            <a href="#sedes"><i class="fa-solid fa-building me-3"></i> Sedes</a>
+            <a href="#inventario"><i class="fa-solid fa-boxes-stacked me-3"></i> Inventario</a>
+            <a href="#movimientos"><i class="fa-solid fa-arrow-right-arrow-left me-3"></i> Movimientos</a>
+            <a href="#reportes"><i class="fa-solid fa-chart-pie me-3"></i> Reportes</a>
+            <a href="#usuarios"><i class="fa-solid fa-users me-3"></i> Usuarios</a>
+            <hr class="my-3">
+            <a href="logout.php" class="text-danger"><i class="fa-solid fa-power-off me-3"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid">
     <div class="row">
-        <!-- Barra Lateral -->
-        <div class="col-md-3 col-lg-2 sidebar p-0">
+        <!-- Barra Lateral Desktop (Se oculta en celulares d-none d-md-block) -->
+        <div class="col-md-3 col-lg-2 sidebar p-0 d-none d-md-block">
             <div class="sidebar-brand d-flex align-items-center justify-content-center gap-2">
                 <img src="assets/img/logo.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
                 <span class="fw-bold text-dark fs-6">LA LIGURIA S.A.</span>
@@ -97,13 +125,20 @@ foreach ($dataSalidas as $m) {
         </div>
 
         <!-- Área Principal -->
-        <div class="col-md-9 col-lg-10 p-4">
-            <!-- Header Superior -->
+        <div class="col-12 col-md-9 col-lg-10 p-4 main-content">
+            <!-- Header Superior Responsive -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold m-0"><i class="fa-solid fa-bars me-2"></i> SISTEMA DE INVENTARIO</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Botón Hamburguesa visible solo en celular -->
+                    <button class="btn btn-white border d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+                        <i class="fa-solid fa-bars fs-5"></i>
+                    </button>
+                    <h5 class="fw-bold m-0 d-none d-sm-block"><i class="fa-solid fa-bars me-2 d-none d-md-inline"></i> SISTEMA DE INVENTARIO</h5>
+                    <h6 class="fw-bold m-0 d-sm-none">INVENTARIO</h6>
+                </div>
                 <div class="dropdown">
-                    <button class="btn btn-white border dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-circle-user text-primary me-2"></i> <?= htmlspecialchars($_SESSION['usuario']['nombre'] ?? 'Administrador') ?>
+                    <button class="btn btn-white border dropdown-toggle fw-semibold text-truncate" type="button" data-bs-toggle="dropdown" style="max-width: 180px;">
+                        <i class="fa-solid fa-circle-user text-primary me-1"></i> <?= htmlspecialchars($_SESSION['usuario']['nombre'] ?? 'Admin') ?>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="logout.php">Cerrar Sesión</a></li>
@@ -111,61 +146,61 @@ foreach ($dataSalidas as $m) {
                 </div>
             </div>
 
-            <h4 class="fw-bold text-dark mb-4">Dashboard de Inventario</h4>
+            <h4 class="fw-bold text-dark mb-3 fs-5">Dashboard de Inventario</h4>
 
-            <!-- Tarjetas de Resumen (4 métricas) -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
+            <!-- Tarjetas de Resumen (1 columna en cel, 2 en tablet, 4 en desktop) -->
+            <div class="row g-2 g-md-3 mb-3 mb-md-4">
+                <div class="col-6 col-md-3">
                     <div class="stat-card p-3 d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 11px;">Total Productos</small>
-                            <h2 class="fw-bold m-0 text-dark"><?= number_format($totalProductos) ?></h2>
+                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Total Productos</small>
+                            <h3 class="fw-bold m-0 text-dark"><?= number_format($totalProductos) ?></h3>
                         </div>
-                        <div class="p-3 bg-light rounded-circle text-primary fs-4"><i class="fa-solid fa-box"></i></div>
+                        <div class="p-2 p-md-3 bg-light rounded-circle text-primary fs-5"><i class="fa-solid fa-box"></i></div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="stat-card p-3 d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 11px;">Stock Bajo (Alertas)</small>
-                            <h2 class="fw-bold m-0 text-danger"><?= $totalAlertas ?></h2>
+                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Stock Bajo</small>
+                            <h3 class="fw-bold m-0 text-danger"><?= $totalAlertas ?></h3>
                         </div>
-                        <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-circle fs-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="p-2 p-md-3 bg-danger bg-opacity-10 text-danger rounded-circle fs-5"><i class="fa-solid fa-triangle-exclamation"></i></div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="stat-card p-3 d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 11px;">Entradas (Hoy)</small>
-                            <h2 class="fw-bold m-0 text-success"><?= $totalEntradas ?> <span class="fs-6">kg</span></h2>
+                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Entradas (Hoy)</small>
+                            <h3 class="fw-bold m-0 text-success"><?= $totalEntradas ?> <span class="fs-6">kg</span></h3>
                         </div>
-                        <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle fs-4"><i class="fa-solid fa-arrow-down"></i></div>
+                        <div class="p-2 p-md-3 bg-success bg-opacity-10 text-success rounded-circle fs-5"><i class="fa-solid fa-arrow-down"></i></div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="stat-card p-3 d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 11px;">Salidas (Hoy)</small>
-                            <h2 class="fw-bold m-0 text-warning"><?= $totalSalidas ?> <span class="fs-6">kg</span></h2>
+                            <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 10px;">Salidas (Hoy)</small>
+                            <h3 class="fw-bold m-0 text-warning"><?= $totalSalidas ?> <span class="fs-6">kg</span></h3>
                         </div>
-                        <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-circle fs-4"><i class="fa-solid fa-arrow-up"></i></div>
+                        <div class="p-2 p-md-3 bg-warning bg-opacity-10 text-warning rounded-circle fs-5"><i class="fa-solid fa-arrow-up"></i></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Gráficos del Sistema con tamaño fijo -->
+            <!-- Gráficos -->
             <div class="row g-3 mb-4">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card-custom p-3">
-                        <h6 class="fw-bold text-dark mb-3" style="font-size: 13px;">Gráfico de Barras: ENTRADAS VS SALIDAS</h6>
+                        <h6 class="fw-bold text-dark mb-3" style="font-size: 12px;">ENTRADAS VS SALIDAS</h6>
                         <div class="chart-container">
                             <canvas id="chartBarras"></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card-custom p-3">
-                        <h6 class="fw-bold text-dark mb-3" style="font-size: 13px;">Gráfico de Líneas: EVOLUCIÓN DEL CONSUMO</h6>
+                        <h6 class="fw-bold text-dark mb-3" style="font-size: 12px;">EVOLUCIÓN DEL CONSUMO</h6>
                         <div class="chart-container">
                             <canvas id="chartLineas"></canvas>
                         </div>
@@ -175,10 +210,10 @@ foreach ($dataSalidas as $m) {
 
             <!-- Tablas de Información -->
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="card-custom p-3">
-                        <h6 class="fw-bold text-dark mb-3" style="font-size: 13px;">LISTADO DE PRODUCTOS CON STOCK BAJO</h6>
-                        <div class="table-responsive" style="max-height: 230px; overflow-y: auto;">
+                        <h6 class="fw-bold text-dark mb-3" style="font-size: 12px;">STOCK BAJO (ALERTAS)</h6>
+                        <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
                             <table class="table table-sm text-nowrap">
                                 <thead>
                                     <tr><th>Producto</th><th class="text-end">Estado</th></tr>
@@ -202,13 +237,13 @@ foreach ($dataSalidas as $m) {
                     </div>
                 </div>
 
-                <div class="col-md-5">
+                <div class="col-12 col-md-5">
                     <div class="card-custom p-3">
-                        <h6 class="fw-bold text-dark mb-3" style="font-size: 13px;">RESUMEN DE MOVIMIENTOS RECIENTES</h6>
-                        <div class="table-responsive" style="max-height: 230px; overflow-y: auto;">
+                        <h6 class="fw-bold text-dark mb-3" style="font-size: 12px;">MOVIMIENTOS RECIENTES</h6>
+                        <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
                             <table class="table table-sm align-middle text-nowrap">
                                 <thead>
-                                    <tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Sede</th></tr>
+                                    <tr><th>Hora</th><th>Producto</th><th>Cant.</th><th>Sede</th></tr>
                                 </thead>
                                 <tbody>
                                     <?php if (empty($movimientosRecientes)): ?>
@@ -233,9 +268,9 @@ foreach ($dataSalidas as $m) {
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12 col-md-3">
                     <div class="card-custom p-3">
-                        <h6 class="fw-bold text-dark mb-3" style="font-size: 13px;">CATEGORÍAS PRINCIPALES</h6>
+                        <h6 class="fw-bold text-dark mb-3" style="font-size: 12px;">CATEGORÍAS PRINCIPALES</h6>
                         <div class="chart-container">
                             <canvas id="chartDona"></canvas>
                         </div>
@@ -244,7 +279,7 @@ foreach ($dataSalidas as $m) {
             </div>
 
             <div class="text-center text-muted mt-4 mb-2 small">
-                &copy; <?= date('Y') ?> LA LIGURIA S.A. Todos los derechos reservados.
+                &copy; <?= date('Y') ?> LA LIGURIA S.A.
             </div>
         </div>
     </div>
@@ -252,7 +287,6 @@ foreach ($dataSalidas as $m) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Configuración de Chart.js con restricciones de tamaño
 new Chart(document.getElementById('chartBarras'), {
     type: 'bar',
     data: {
@@ -265,9 +299,7 @@ new Chart(document.getElementById('chartBarras'), {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-            y: { beginAtZero: true, max: 10 }
-        }
+        scales: { y: { beginAtZero: true, max: 10 } }
     }
 });
 
@@ -280,9 +312,7 @@ new Chart(document.getElementById('chartLineas'), {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-            y: { beginAtZero: true, max: 10 }
-        }
+        scales: { y: { beginAtZero: true, max: 10 } }
     }
 });
 
@@ -292,10 +322,7 @@ new Chart(document.getElementById('chartDona'), {
         labels: ['Sin categorías'],
         datasets: [{ data: [1], backgroundColor: ['#e0e0e0'] }]
     },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
+    options: { responsive: true, maintainAspectRatio: false }
 });
 </script>
 </body>
