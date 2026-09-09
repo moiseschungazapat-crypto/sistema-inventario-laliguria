@@ -89,18 +89,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .login-header {
             background: #1a2a3a;
             color: #ffffff;
-            padding: 35px 25px 25px 25px;
+            padding: 30px 25px 25px 25px;
             text-align: center;
             border-bottom: 3px solid #d4a373;
         }
-        .brand-logo {
-            width: 90px;
-            height: 90px;
-            object-fit: cover;
+        .brand-logo-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 12px auto;
             border-radius: 50%;
             border: 3px solid #d4a373;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-            margin-bottom: 12px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 5px;
+        }
+        .brand-logo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
         .login-body {
             padding: 28px 28px 20px 28px;
@@ -160,7 +170,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="login-card">
     <div class="login-header">
-        <img src="assets/img/logo.png" alt="Logo La Liguria S.A." class="brand-logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/90';">
+        <div class="brand-logo-container">
+            <img src="assets/img/logo.png" alt="LA LIGURIA S.A." class="brand-logo">
+        </div>
         <h4 class="fw-bold m-0" style="letter-spacing: 0.5px;">LA LIGURIA S.A.</h4>
         <p class="m-0 text-white-50 small mt-1">Gestión e Inventario Multi-Sede</p>
     </div>
@@ -184,12 +196,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="index.php">
+        <form method="POST" action="index.php" autocomplete="off">
             <div class="mb-3">
                 <label for="email" class="form-label">Correo Electrónico</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
-                    <input type="email" class="form-control" id="email" name="email" value="moiseschungazapata@gmail.com" required>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico" required>
                 </div>
             </div>
 
@@ -197,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="password" class="form-label">Contraseña</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" class="form-control" id="password" name="password" value="moises987654123" required>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
                     <span class="input-group-text toggle-password" id="btnTogglePassword">
                         <i class="fa-regular fa-eye" id="eyeIcon"></i>
                     </span>
