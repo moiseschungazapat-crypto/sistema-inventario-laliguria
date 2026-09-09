@@ -53,7 +53,18 @@ foreach ($dataSalidas as $m) {
         body { background-color: #eef2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .sidebar { min-height: 100vh; background-color: #ffffff; border-right: 1px solid #e0e0e0; }
         .sidebar-brand { padding: 15px; text-align: center; border-bottom: 1px solid #eeeeee; }
-        .sidebar-logo { max-height: 45px; border-radius: 6px; }
+        
+        /* Estilo circular para el logo */
+        .sidebar-logo { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid #d4a373; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
         .sidebar-menu a { color: #495057; text-decoration: none; display: flex; align-items: center; padding: 10px 18px; font-weight: 500; border-radius: 6px; margin: 4px 10px; font-size: 14px; }
         .sidebar-menu a:hover, .sidebar-menu a.active { background-color: #0d233a; color: #ffffff; }
         .stat-card { border: none; border-radius: 10px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
@@ -79,7 +90,7 @@ foreach ($dataSalidas as $m) {
 <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
     <div class="offcanvas-header border-bottom">
         <div class="d-flex align-items-center gap-2">
-            <img src="assets/img/logo.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
+            <img src="PEGA_AQUI_TU_TEXTO_BASE64" alt="Logo" class="sidebar-logo">
             <h6 class="offcanvas-title fw-bold text-dark m-0" id="mobileSidebarLabel">LA LIGURIA S.A.</h6>
         </div>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -106,7 +117,7 @@ foreach ($dataSalidas as $m) {
         <!-- Barra Lateral Desktop (Se oculta en celulares d-none d-md-block) -->
         <div class="col-md-3 col-lg-2 sidebar p-0 d-none d-md-block">
             <div class="sidebar-brand d-flex align-items-center justify-content-center gap-2">
-                <img src="assets/img/logo.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
+                <img src="PEGA_AQUI_TU_TEXTO_BASE64" alt="Logo" class="sidebar-logo">
                 <span class="fw-bold text-dark fs-6">LA LIGURIA S.A.</span>
             </div>
             <div class="sidebar-menu py-3">
@@ -148,7 +159,7 @@ foreach ($dataSalidas as $m) {
 
             <h4 class="fw-bold text-dark mb-3 fs-5">Dashboard de Inventario</h4>
 
-            <!-- Tarjetas de Resumen (1 columna en cel, 2 en tablet, 4 en desktop) -->
+            <!-- Tarjetas de Resumen -->
             <div class="row g-2 g-md-3 mb-3 mb-md-4">
                 <div class="col-6 col-md-3">
                     <div class="stat-card p-3 d-flex justify-content-between align-items-center">
