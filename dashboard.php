@@ -98,14 +98,14 @@ $nombreUsuario = $_SESSION['usuario']['nombre'] ?? 'Moises Chunga';
             </div>
             <div class="sidebar-menu">
                 <a href="dashboard.php" class="active"><i class="fa-solid fa-house"></i> Dashboard</a>
-                <a href="productos.php"><i class="fa-solid fa-box-archive"></i> Productos</a>
-                <a href="categorias.php"><i class="fa-solid fa-tag"></i> Categorías</a>
-                <a href="proveedores.php"><i class="fa-solid fa-truck"></i> Proveedores</a>
-                <a href="sedes.php"><i class="fa-solid fa-building"></i> Sedes</a>
-                <a href="inventario.php"><i class="fa-solid fa-warehouse"></i> Inventario</a>
-                <a href="movimientos.php"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimientos</a>
-                <a href="reportes.php"><i class="fa-solid fa-chart-line"></i> Reportes</a>
-                <a href="usuarios.php"><i class="fa-solid fa-users"></i> Usuarios</a>
+                <a href="productos/index.php"><i class="fa-solid fa-box-archive"></i> Productos</a>
+                <a href="categorias/index.php"><i class="fa-solid fa-tag"></i> Categorías</a>
+                <a href="proveedores/index.php"><i class="fa-solid fa-truck"></i> Proveedores</a>
+                <a href="sedes/index.php"><i class="fa-solid fa-building"></i> Sedes</a>
+                <a href="inventario/index.php"><i class="fa-solid fa-warehouse"></i> Inventario</a>
+                <a href="movimientos/index.php"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimientos</a>
+                <a href="reportes/index.php"><i class="fa-solid fa-chart-line"></i> Reportes</a>
+                <a href="usuarios/index.php"><i class="fa-solid fa-users"></i> Usuarios</a>
                 <a href="logout.php" class="logout"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</a>
             </div>
         </div>
